@@ -55,7 +55,8 @@ if len(sys.argv) == 2: # special modes enabled
 	daemonmode = sys.argv[1] == 'daemon'
 	
 if len(sys.argv) != 1 and not checkmode and not daemonmode:
-	print("Either supply no arguments, or supply one argument: either check or daemon")
+	print("Error: Either supply no arguments, or supply one argument: either check or daemon")
+	sys.exit()
 
 def getexternalip():
 	for server in IP_API_SERVERS:
