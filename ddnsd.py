@@ -16,7 +16,7 @@ def match_process_name(str): # check if another instance of this script is runni
 POLLING_INTERVAL = 2 # how many seconds to wait before polling cloudflare and ipify again
 REQUEST_TIMEOUT = 3 # timeout parameter to pass to urlopen
 DOH_SERVER = "1.1.1.1"
-IP_API_SERVERS = ['https://api.ipify.org', 'https://ipinfo.io/ip', 'https://bot.whatismyipaddress.com/', 'https://icanhazip.com/', 'https://ifconfig.me/', 'https://ident.me']
+IP_API_SERVERS = ['https://checkip.amazonaws.com/', 'https://api.ipify.org', 'https://ipinfo.io/ip', 'https://bot.whatismyipaddress.com/', 'https://icanhazip.com/', 'https://ifconfig.me/', 'https://ident.me']
 import sys
 MIN_PYTHON = (3, 3)
 if sys.version_info < MIN_PYTHON:
