@@ -7,7 +7,7 @@ WAIT_PERIOD = 60
 # this script does a DNS query via cloudflare and asks ipify "what is my IP?"
 # based on https://github.com/stamparm/python-doh/blob/master/client.py
 
-POLLING_INTERVAL = 5 # how many seconds to wait before polling cloudflare and ipify again
+POLLING_INTERVAL = 3 # how many seconds to wait before polling cloudflare and ipify again
 DOH_SERVER = "1.1.1.1"
 IP_API_SERVERS = ['https://api.ipify.org', 'https://ipinfo.io/ip', 'https://bot.whatismyipaddress.com/', 'https://icanhazip.com/', 'https://ifconfig.me/', 'https://ident.me']
 import sys
