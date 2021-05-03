@@ -50,6 +50,9 @@ class Unbuffered(object):
 
 sys.stdout = Unbuffered(sys.stdout) # for running as a systemd service
 
+if len(sys.argv) == 2: # special modes enabled
+	checkmode = sys.argv[1] == 'check'
+	daemonmode = sys.argv[1] == 'daemon'
 
 def getexternalip():
 	for server in IP_API_SERVERS:
@@ -81,7 +84,7 @@ def check_synchronized():
 	synchronized = external_ip == query_ip
 	if not synchronized:
 		print("ATTENTION: Domain {} has IP {} which does not match the current external IP {}".format(QUERY_DOMAIN, query_ip, external_ip))
-	if len(sys.argv) > 1: # if just checking, say the result and exit.
+	if checkmode: # if just checking, say the result and exit.
 		if synchronized:
 			print("Everything is fine. Domain {} IP {} matches external IP {}".format(QUERY_DOMAIN, query_ip, external_ip))
 		sys.exit()
@@ -116,7 +119,8 @@ if os.path.isfile(pidfile): #if a pidfile already exists, check if it is another
 		pidfilecontents = f.read()
 	process_name = get_pname(pidfilecontents)
 	if match_process_name(process_name): # another process is running, just quit.
-		print("%s already exists, exiting" % pidfile)
+		if not daemonmode:
+			print("%s already exists, exiting" % pidfile)
 		sys.exit()
 	else: # getting to this point means the pidfile doesn't belong to another running instance, so delete it
 		print("deleting orphaned pidfile %s" % pidfile)
