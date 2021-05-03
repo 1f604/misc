@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# You can chmod +x this script and put it in your /usr/sbin 
 # change these parameters as necessary
 QUERY_DOMAIN = "example.com"
 UPDATE_CMD = "cloudflare-ddns-updater"
