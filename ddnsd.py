@@ -53,6 +53,9 @@ sys.stdout = Unbuffered(sys.stdout) # for running as a systemd service
 if len(sys.argv) == 2: # special modes enabled
 	checkmode = sys.argv[1] == 'check'
 	daemonmode = sys.argv[1] == 'daemon'
+	
+if len(sys.argv) != 1 and not checkmode and not daemonmode:
+	print("Either supply no arguments, or supply one argument: either check or daemon")
 
 def getexternalip():
 	for server in IP_API_SERVERS:
