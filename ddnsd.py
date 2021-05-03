@@ -75,8 +75,13 @@ def main(): # main polling loop
 			if check_synchronized(): # everything went well
 				print("Update successful.")
 			else:
-				print("ERROR: Something went wrong with the DDNS updater. You need to fix it manually.")
-				return
+				print("Waiting for the updated DNS records...")
+				time.sleep(WAIT_PERIOD)
+				if check_synchronized(): # everything went well
+					print("Update successful.")
+				else:
+					print("ERROR: Something went wrong with the DDNS updater. You need to fix it manually.")
+					return
 		time.sleep(POLLING_INTERVAL)
 
 pid = str(os.getpid())
