@@ -13,6 +13,7 @@ def match_process_name(str): # check if another instance of this script is runni
 	return "python" in str and "ddnsd.py" in str
 
 POLLING_INTERVAL = 2 # how many seconds to wait before polling cloudflare and ipify again
+REQUEST_TIMEOUT = 3 # timeout parameter to pass to urlopen
 DOH_SERVER = "1.1.1.1"
 IP_API_SERVERS = ['https://api.ipify.org', 'https://ipinfo.io/ip', 'https://bot.whatismyipaddress.com/', 'https://icanhazip.com/', 'https://ifconfig.me/', 'https://ident.me']
 import sys
@@ -63,10 +64,11 @@ if len(sys.argv) != 1 and not checkmode and not daemonmode:
 def getexternalip():
 	for server in IP_API_SERVERS:
 		try:	
-			ip = urllib.request.urlopen(server).read().decode('utf8').strip()
+			ip = urllib.request.urlopen(server, timeout=REQUEST_TIMEOUT).read().decode('utf8').strip()
 			assert(pat.match(ip))
 			return ip
-		except: 
+		except:
+			print("Server %s timed out" % server)
 			pass
 	raise Exception("No IP API servers were usable.")
 	sys.exit()
@@ -74,7 +76,7 @@ def getexternalip():
 def dnsquery(name, type='A', server=DOH_SERVER):
 	retval = None
 	req = _Request("https://%s/dns-query?name=%s&type=%s" % (server, name, type), headers={"Accept": "application/dns-json"})
-	content = _urlopen(req).read().decode()
+	content = _urlopen(req, timeout=REQUEST_TIMEOUT).read().decode()
 	reply = json.loads(content)
 
 	if "Answer" in reply:
