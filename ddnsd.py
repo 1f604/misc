@@ -68,9 +68,9 @@ def getexternalip():
 			assert(pat.match(ip))
 			return ip
 		except:
-			print("Server %s was unusable or timed out" % server)
+			print("ddnsd: Server %s was unusable or timed out" % server)
 			pass
-	print("ERROR: All IP API servers were unusable or timed out. Check your connection.")
+	print("ddnsd: Error. All IP API servers were unusable or timed out. Check your connection.")
 	sys.exit()
 
 def dnsquery(name, type='A', server=DOH_SERVER):
@@ -91,7 +91,7 @@ def check_synchronized():
 	query_ip = dnsquery(QUERY_DOMAIN)[0].strip()
 	synchronized = external_ip == query_ip
 	if not synchronized:
-		print("ATTENTION: Domain {} has IP {} which does not match the current external IP {}".format(QUERY_DOMAIN, query_ip, external_ip))
+		print("ddnsd: ATTENTION: Domain {} has IP {} which does not match the current external IP {}".format(QUERY_DOMAIN, query_ip, external_ip))
 	if checkmode: # if just checking, say the result and exit.
 		if synchronized:
 			print("Everything is fine. Domain {} IP {} matches external IP {}".format(QUERY_DOMAIN, query_ip, external_ip))
@@ -101,18 +101,18 @@ def check_synchronized():
 def main(): # main polling loop
 	while True:
 		if not check_synchronized(): # need to fix the DDNS
-			print('Now forcing IP update using the command \"{}\"'.format(UPDATE_CMD))
+			print('ddnsd: Now forcing IP update using the command \"{}\"'.format(UPDATE_CMD))
 			os.system(UPDATE_CMD)
 			time.sleep(WAIT_PERIOD)
 			if check_synchronized(): # everything went well
-				print("Update successful.")
+				print("ddnsd: Update successful.")
 			else:
-				print("Waiting for the updated DNS records...")
+				print("ddnsd: Waiting for the updated DNS records...")
 				time.sleep(WAIT_PERIOD)
 				if check_synchronized(): # everything went well
-					print("Update successful.")
+					print("ddnsd: Update successful.")
 				else:
-					print("ERROR: Something went wrong with the DDNS updater. You need to fix it manually.")
+					print("ddnsd: Error. Something went wrong with the DDNS updater. You need to fix it manually.")
 					return
 		time.sleep(POLLING_INTERVAL)
 
@@ -131,7 +131,7 @@ if os.path.isfile(pidfile): #if a pidfile already exists, check if it is another
 			print("%s already exists, exiting" % pidfile)
 		sys.exit()
 	else: # getting to this point means the pidfile doesn't belong to another running instance, so delete it
-		print("deleting orphaned pidfile %s" % pidfile)
+		print("ddnsd: deleting orphaned pidfile %s" % pidfile)
 		os.unlink(pidfile)
 
 # now that we are sure that no pidfile exists, we can create one.
