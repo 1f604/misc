@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # change these parameters as necessary
 QUERY_DOMAIN = "example.com"
 UPDATE_CMD = "cloudflare-ddns-updater"
