@@ -50,6 +50,8 @@ class Unbuffered(object):
 
 sys.stdout = Unbuffered(sys.stdout) # for running as a systemd service
 
+checkmode = False
+daemonmode = False
 if len(sys.argv) == 2: # special modes enabled
 	checkmode = sys.argv[1] == 'check'
 	daemonmode = sys.argv[1] == 'daemon'
