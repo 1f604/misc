@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# TODO: Add https://whatismyip.akamai.com/ to the server list once they fix their SSL certificate. Get rid of defunct/unreliable servers.
 # You can chmod +x this script and put it in your /usr/sbin 
 # Example crontab: * * * * * python3 /opt/ddnsd/ddnsd.py daemon > /dev/tty1
 # change these parameters as necessary
