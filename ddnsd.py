@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # You can chmod +x this script and put it in your /usr/sbin 
+# Example crontab: * * * * * python3 /opt/ddnsd/ddnsd.py daemon > /dev/tty1
 # change these parameters as necessary
 QUERY_DOMAIN = "example.com"
 UPDATE_CMD = "cloudflare-ddns-updater"
