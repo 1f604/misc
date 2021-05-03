@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 # change these parameters as necessary
 QUERY_DOMAIN = "example.com"
 UPDATE_CMD = "cloudflare-ddns-updater"
@@ -11,7 +11,7 @@ POLLING_INTERVAL = 2 # how many seconds to wait before polling cloudflare and ip
 DOH_SERVER = "1.1.1.1"
 IP_API_SERVERS = ['https://api.ipify.org', 'https://ipinfo.io/ip', 'https://bot.whatismyipaddress.com/', 'https://icanhazip.com/', 'https://ifconfig.me/', 'https://ident.me']
 import sys
-MIN_PYTHON = (3, 0)
+MIN_PYTHON = (3, 3)
 if sys.version_info < MIN_PYTHON:
     sys.exit("Python %s.%s or later is required.\n" % MIN_PYTHON)
 
@@ -29,6 +29,20 @@ _Request = urllib.request.Request
 
 ipv4_regexp = '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
 pat = re.compile(ipv4_regexp)
+
+class Unbuffered(object):
+   def __init__(self, stream):
+       self.stream = stream
+   def write(self, data):
+       self.stream.write(data)
+       self.stream.flush()
+   def writelines(self, datas):
+       self.stream.writelines(datas)
+       self.stream.flush()
+   def __getattr__(self, attr):
+       return getattr(self.stream, attr)
+
+sys.stdout = Unbuffered(sys.stdout) # for running as a systemd service
 
 def getexternalip():
 	for server in IP_API_SERVERS:
