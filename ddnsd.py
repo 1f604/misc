@@ -8,6 +8,10 @@ WAIT_PERIOD = 60
 # this script does a DNS query via cloudflare and asks ipify "what is my IP?"
 # based on https://github.com/stamparm/python-doh/blob/master/client.py
 
+def match_process_name(str): # check if another instance of this script is running. 
+	#return str == "usr/bin/python3 /usr/sbin/ddnsd.py"
+	return "python" in str and "ddnsd.py" in str
+
 POLLING_INTERVAL = 2 # how many seconds to wait before polling cloudflare and ipify again
 DOH_SERVER = "1.1.1.1"
 IP_API_SERVERS = ['https://api.ipify.org', 'https://ipinfo.io/ip', 'https://bot.whatismyipaddress.com/', 'https://icanhazip.com/', 'https://ifconfig.me/', 'https://ident.me']
@@ -23,6 +27,7 @@ import ssl
 import subprocess
 import urllib.request
 import os
+import subprocess
 import time
 
 _urlopen = urllib.request.urlopen
@@ -44,6 +49,7 @@ class Unbuffered(object):
        return getattr(self.stream, attr)
 
 sys.stdout = Unbuffered(sys.stdout) # for running as a systemd service
+
 
 def getexternalip():
 	for server in IP_API_SERVERS:
@@ -99,13 +105,24 @@ def main(): # main polling loop
 					return
 		time.sleep(POLLING_INTERVAL)
 
+def get_pname(id):
+	return subprocess.getoutput("ps -o cmd= {}".format(id))
+
 pid = str(os.getpid())
 pidfile = "/tmp/ddnsd.pid"
 
-if os.path.isfile(pidfile):
-    print("%s already exists, exiting" % pidfile)
-    sys.exit()
+if os.path.isfile(pidfile): #if a pidfile already exists, check if it is another instance of this program
+	with open(pidfile, 'r') as f:
+		pidfilecontents = f.read()
+	process_name = get_pname(pidfilecontents)
+	if match_process_name(process_name): # another process is running, just quit.
+		print("%s already exists, exiting" % pidfile)
+		sys.exit()
+	else: # getting to this point means the pidfile doesn't belong to another running instance, so delete it
+		print("deleting orphaned pidfile %s" % pidfile)
+		os.unlink(pidfile)
 
+# now that we are sure that no pidfile exists, we can create one.
 with open(pidfile, 'w') as f:
     f.write(pid)
 
