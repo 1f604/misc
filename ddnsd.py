@@ -68,9 +68,9 @@ def getexternalip():
 			assert(pat.match(ip))
 			return ip
 		except:
-			print("Server %s timed out" % server)
+			print("Server %s was unusable or timed out" % server)
 			pass
-	raise Exception("No IP API servers were usable.")
+	print("ERROR: All IP API servers were unusable or timed out. Check your connection.")
 	sys.exit()
 
 def dnsquery(name, type='A', server=DOH_SERVER):
