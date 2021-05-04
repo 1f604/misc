@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # TODO: Add https://whatismyip.akamai.com/ to the server list once they fix their SSL certificate. Get rid of defunct/unreliable servers.
 # You can chmod +x this script and put it in your /usr/sbin 
-# Example crontab: * * * * * python3 /opt/ddnsd/ddnsd.py daemon > /dev/tty1
+# Example crontab: * * * * * python3 /opt/ddnsd/ddnsd.py daemon | tee -a /opt/ddnsd/log.txt /dev/tty1
 # change these parameters as necessary
 QUERY_DOMAIN = "example.com"
 UPDATE_CMD = "cloudflare-ddns-updater"
@@ -63,6 +63,13 @@ if len(sys.argv) != 1 and not checkmode and not daemonmode:
 	print("Error: Either supply no arguments, or supply one argument: either check or daemon")
 	sys.exit()
 
+import builtins as __builtin__
+
+def print(*args, **kwargs):
+	import datetime
+	date = str(datetime.datetime.now())
+	return __builtin__.print('{} ddnsd:'.format(date), *args, **kwargs)
+	
 def getexternalip():
 	for server in IP_API_SERVERS:
 		try:	
@@ -70,9 +77,9 @@ def getexternalip():
 			assert(pat.match(ip))
 			return ip
 		except:
-			print("ddnsd: Server %s was unusable or timed out" % server)
+			print("Server %s was unusable or timed out" % server)
 			pass
-	print("ddnsd: Error. All IP API servers were unusable or timed out. Check your connection.")
+	print("ERROR: All IP API servers were unusable or timed out. Check your connection.")
 	sys.exit()
 
 def dnsquery(name, type='A', server=DOH_SERVER):
@@ -93,7 +100,7 @@ def check_synchronized():
 	query_ip = dnsquery(QUERY_DOMAIN)[0].strip()
 	synchronized = external_ip == query_ip
 	if not synchronized:
-		print("ddnsd: ATTENTION: Domain {} has IP {} which does not match the current external IP {}".format(QUERY_DOMAIN, query_ip, external_ip))
+		print("ATTENTION: Domain {} has IP {} which does not match the current external IP {}".format(QUERY_DOMAIN, query_ip, external_ip))
 	if checkmode: # if just checking, say the result and exit.
 		if synchronized:
 			print("Everything is fine. Domain {} IP {} matches external IP {}".format(QUERY_DOMAIN, query_ip, external_ip))
@@ -103,18 +110,18 @@ def check_synchronized():
 def main(): # main polling loop
 	while True:
 		if not check_synchronized(): # need to fix the DDNS
-			print('ddnsd: Now forcing IP update using the command \"{}\"'.format(UPDATE_CMD))
+			print('Now forcing IP update using the command \"{}\"'.format(UPDATE_CMD))
 			os.system(UPDATE_CMD)
 			time.sleep(WAIT_PERIOD)
 			if check_synchronized(): # everything went well
-				print("ddnsd: Update successful.")
+				print("Update successful.")
 			else:
-				print("ddnsd: Waiting for the updated DNS records...")
+				print("Waiting for the updated DNS records...")
 				time.sleep(WAIT_PERIOD)
 				if check_synchronized(): # everything went well
-					print("ddnsd: Update successful.")
+					print("Update successful.")
 				else:
-					print("ddnsd: Error. Something went wrong with the DDNS updater. You need to fix it manually.")
+					print("ERROR: Something went wrong with the DDNS updater. You need to fix it manually.")
 					return
 		time.sleep(POLLING_INTERVAL)
 
@@ -133,7 +140,7 @@ if os.path.isfile(pidfile): #if a pidfile already exists, check if it is another
 			print("%s already exists, exiting" % pidfile)
 		sys.exit()
 	else: # getting to this point means the pidfile doesn't belong to another running instance, so delete it
-		print("ddnsd: deleting orphaned pidfile %s" % pidfile)
+		print("deleting orphaned pidfile %s" % pidfile)
 		os.unlink(pidfile)
 
 # now that we are sure that no pidfile exists, we can create one.
