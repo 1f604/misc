@@ -1,6 +1,14 @@
 // Simple file server using HTTP basic authentication
 // Allows 3 consecutive failed logins (configurable), after which all requests will be denied and server must be restarted.
 // Make sure you change the configuration as specified below.
+// Place files in the subdirectory in the same directory where this file is.
+/* Default directory structure:
+   - httpserver.go (file)
+   - filestobeserved (directory)
+		- file1.html (file)
+		- assets (directory)
+			- file2.jpg (file)
+*/
 package main
 
 import (
