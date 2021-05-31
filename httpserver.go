@@ -5,7 +5,7 @@
 /* Default directory structure:
    - httpserver.go (this file)
    - filestobeserved (directory)
-   - file1.html (file)
+      - file1.html (file)
       - assets (directory)
          - file2.jpg (file)
 */
