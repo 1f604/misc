@@ -3,7 +3,7 @@
 // Make sure you change the configuration as specified below.
 // Place files in the subdirectory in the same directory where this file is.
 /* Default directory structure:
-   - httpserver.go (file)
+   - httpserver.go (this file)
    - filestobeserved (directory)
    - file1.html (file)
       - assets (directory)
