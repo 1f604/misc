@@ -1,3 +1,4 @@
+// Deprecated. Use fileserver.go instead.
 // Simple file server using HTTP basic authentication
 // Allows 3 consecutive failed logins (configurable), after which all requests will be denied and server must be restarted.
 // Make sure you change the configuration as specified below.
