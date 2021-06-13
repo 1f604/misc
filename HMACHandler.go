@@ -1,6 +1,20 @@
 // Responds to challenges by returning the HMAC of the challenge, proving that you have the secret.
 // Example usage: curl -v "127.0.0.1:12345/chall?chall=A12345CA21D6CDD57CD2B747FCA14708"
-// Modify isValidChallenge as per your requirements.
+/* Example usage:
+
+package main
+
+import (
+	"log"
+	"net/http"
+)
+
+func main() {
+	handler := http.HandlerFunc(HMACHandler)
+	http.Handle("/chall", handler)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+*/
 package main
 
 import (
@@ -8,7 +22,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -49,7 +62,7 @@ func genHMAC(s string) string {
 	return result
 }
 
-func handleChallenge(w http.ResponseWriter, r *http.Request) {
+func HMACHandler(w http.ResponseWriter, r *http.Request) {
 	var challenge = r.URL.Query().Get("chall")
 	if !isValidChallenge(challenge) {
 		w.WriteHeader(400)
@@ -59,10 +72,4 @@ func handleChallenge(w http.ResponseWriter, r *http.Request) {
 	body = genHMAC(challenge)
 	fmt.Println("body:", body)
 	w.Write([]byte(body))
-}
-
-func main() {
-	handler := http.HandlerFunc(handleChallenge)
-	http.Handle("/chall", handler)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
