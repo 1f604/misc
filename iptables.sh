@@ -40,8 +40,16 @@ $IPT -A OUTPUT -p icmp --icmp-type 8 -m conntrack --ctstate NEW,ESTABLISHED,RELA
 $IPT -A OUTPUT -p icmp --icmp-type 0 -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
 
 echo "Allowing outgoing connections to all IPs on port 443"
-$IPT -A INPUT  -p tcp --sport 443 -m conntrack --ctstate ESTABLISHED     -j ACCEPT
-$IPT -A OUTPUT -p tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$IPT -A INPUT  -p tcp --sport 443  -m conntrack --ctstate ESTABLISHED     -j ACCEPT
+$IPT -A OUTPUT -p tcp --dport 443  -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+
+echo "Allow outgoing connections to port 123 (nts)"
+$IPT -A INPUT  -p udp --sport 123  -m conntrack --ctstate ESTABLISHED     -j ACCEPT
+$IPT -A OUTPUT -p udp --dport 123  -m owner --uid-owner ntpuser           -j ACCEPT
+
+echo "Allow outgoing connections to port 4460 (nts-ke)"
+$IPT -A INPUT  -p tcp --sport 4460 -m conntrack --ctstate ESTABLISHED     -j ACCEPT
+$IPT -A OUTPUT -p tcp --dport 4460 -m owner --uid-owner ntpuser           -j ACCEPT
 
 # Log before dropping
 # $IPT -A INPUT  -j LOG  -m limit --limit 12/min --log-level 4 --log-prefix 'IP INPUT drop: '
