@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# iptable rules to allow outgoing connections to all ips on port 443, incoming and outgoing icmp (ping) requests, and everything on localhost.
+# iptable rules to allow outgoing connections to all ips on port 443, incoming and outgoing icmp (ping) requests, NTS, and everything on localhost.
 # Requires iptables-persistent.
 # Based on rules from here: https://gist.github.com/thomasfr/9712418
 # Test: 
