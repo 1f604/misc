@@ -1,6 +1,7 @@
 // Copyright 2009 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+// Modifications by 1f604.
 
 // W.Hormann, G.Derflinger:
 // "Rejection-Inversion to Generate Variates
@@ -13,7 +14,6 @@ import "math"
 
 // A Zipf generates Zipf distributed variates.
 type Zipf struct {
-	r            *Rand
 	imax         float64
 	v            float64
 	q            float64
@@ -36,12 +36,11 @@ func (z *Zipf) hinv(x float64) float64 {
 // The generator generates values k ∈ [0, imax]
 // such that P(k) is proportional to (v + k) ** (-s).
 // Requirements: s > 1 and v >= 1.
-func NewZipf(r *Rand, s float64, v float64, imax uint64) *Zipf {
+func NewZipf(s float64, v float64, imax uint64) *Zipf {
 	z := new(Zipf)
 	if s <= 1.0 || v < 1 {
 		return nil
 	}
-	z.r = r
 	z.imax = float64(imax)
 	z.v = v
 	z.q = s
@@ -53,16 +52,20 @@ func NewZipf(r *Rand, s float64, v float64, imax uint64) *Zipf {
 	return z
 }
 
+func deterministic_rand(input Float64) Float64 { // r on [0,1]
+	// TODO: implement this.
+	return input
+}
+
 // Uint64 returns a value drawn from the Zipf distribution described
 // by the Zipf object.
-func (z *Zipf) Uint64() uint64 {
+func (z *Zipf) Uint64(r Float64) uint64 { // r on [0,1]
 	if z == nil {
 		panic("rand: nil Zipf")
 	}
 	k := 0.0
 
 	for {
-		r := z.r.Float64() // r on [0,1]
 		ur := z.hxm + r*z.hx0minusHxm
 		x := z.hinv(ur)
 		k = math.Floor(x + 0.5)
@@ -72,6 +75,7 @@ func (z *Zipf) Uint64() uint64 {
 		if ur >= z.h(k+0.5)-math.Exp(-math.Log(k+z.v)*z.q) {
 			break
 		}
+		r = deterministic_rand(r) 
 	}
 	return uint64(k)
 }
