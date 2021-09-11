@@ -13,6 +13,7 @@ Parameters:
                       timeout=3, retries=5, thread_count=50)
     
 Created on Wed Dec 5 2018
+Updated on Sat Sep 11 2021
 @author: 1f604
 """
 
@@ -20,6 +21,8 @@ import threading, queue, os, urllib, logging
 from queue import Queue
 from pprint import pprint
 from urllib.request import urlopen
+from urllib.parse import urljoin, urlparse
+
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -59,7 +62,7 @@ class DownloaderThread(threading.Thread):
         self.retries = retries
         
     def download_file(self, url, dest):
-        # Note: Will fail if dest is not a valid filename
+        # Note: Will use response.url.basename if dest is not a valid filename
         """ downloads url into dest (filename with full path) with retry
             if failed to download url, puts url into failed_q
         """
@@ -68,7 +71,11 @@ class DownloaderThread(threading.Thread):
             try:
                 request = urllib.request.Request(url, headers=headers)
                 with urlopen(request, timeout = self.timeout) as response:
+                    url = response.url
+                    filename = os.path.basename(urljoin(url, urlparse(url).path))  # 'http://example.com/'
                     contents = response.read()
+                if dest[0] is None:
+                    dest = dest[1] + "/" + filename
                 with open(dest, 'wb') as f:
                     f.write(contents)
                 log.info("Successfully downloaded: "+url)
@@ -98,13 +105,13 @@ def download_urls(url_dests: list, destdir = 'downloaded_by_multidown', timeout=
           or a list of (url, filename) tuples: [(str, str)]
         Returns the list of urls that were not downloaded. 
     """
-    # if no filenames given, generate filenames as appropriate
+    # if no filenames given, let the downloader try to guess
     log.info(url_dests)
     if type(url_dests[0]) is str:
         destdir = os.path.join(destdir, '')
         if not os.path.exists(destdir):
             os.makedirs(destdir)
-        url_dests = [(url, destdir + os.path.basename(url)) for url in url_dests]
+        url_dests = [(url, (None, destdir)) for url in url_dests]
         log.warning("filenames were not supplied so they were generated from the URLs")
         
     # create the queues and input the urls to be downloaded
